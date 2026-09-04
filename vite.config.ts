@@ -1,7 +1,20 @@
 import vinext from "vinext";
 import { defineConfig } from "vite";
-import hostingConfig from "./.openai/hosting.json";
+import { readFileSync } from "node:fs";
 import { sites } from "./build/sites-vite-plugin";
+
+type HostingConfig = { d1?: string; r2?: string };
+
+// Sites provides this private metadata file locally. GitHub/Vercel builds do
+// not include it, so treat it as optional and use no external bindings there.
+let hostingConfig: HostingConfig = {};
+try {
+  hostingConfig = JSON.parse(
+    readFileSync(new URL("./.openai/hosting.json", import.meta.url), "utf8"),
+  ) as HostingConfig;
+} catch {
+  // The app does not require D1/R2 bindings for its public game experience.
+}
 
 const SITE_CREATOR_PLACEHOLDER_DATABASE_ID =
   "00000000-0000-4000-8000-000000000000";
